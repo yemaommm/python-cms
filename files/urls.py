@@ -9,6 +9,9 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
+    url(r'^mkdir/',mkdir),
+    url(r'^readfile/',readfile),
+    url(r'^find/',find),
     url(r'^fileList/',fileList),
     url(r'^one/', one),
     url(r'',index),

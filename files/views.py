@@ -1,3 +1,4 @@
+#codeing=utf-8
 from django.shortcuts import render,HttpResponse
 from django.db import connection,transaction
 from django.template import loader,Context
@@ -5,14 +6,42 @@ from files.models import *
 import json
 import os
 import HTMLParser
+import cgi
+
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 # Create your views here.
 
-def fileList(request):
+def mkdir(request):
+    html_parser = HTMLParser.HTMLParser()
+    path=request.GET['nowpath']
+    filename=request.GET['filename']
+    path=html_parser.unescape(path)
+    filename=html_parser.unescape(filename)
+    os.mkdir(path+"\\"+filename)
+    return HttpResponse('ok')
+
+def readfile(request):
     html_parser = HTMLParser.HTMLParser()
     path=request.GET['path']
     path=html_parser.unescape(path)
-    print path
+    str=open(path,'r')
+    str=cgi.escape(str.read())
+    return HttpResponse(str)
+
+def find(request):
+    html_parser = HTMLParser.HTMLParser()
+    path=request.GET['path']
+    select=request.GET['select']
+    path=html_parser.unescape(path)
+    select=html_parser.unescape(select)
+    if select=='fist':
+        path=path[0:path.rfind('\\')]
+    elif select=='home':
+        path=request.session['basepath']
+    #print path
     file=os.listdir(path)
     isdir=[]
     isfile=[]
@@ -23,7 +52,30 @@ def fileList(request):
             isfile.append(file[f])
     #filepath = os.path.join(path,file[0])
     filepath=os.path.abspath(path)
-    print filepath
+    #print filepath
+    t=loader.get_template('fileList.html')
+    c=Context({'isfile':isfile,'isdir':isdir,'path':filepath})
+    return HttpResponse(t.render(c))
+
+def fileList(request):
+    html_parser = HTMLParser.HTMLParser()
+    path=request.GET['path']
+    basepath=request.GET['basepath']
+    path=html_parser.unescape(path)
+    basepath=html_parser.unescape(basepath)
+    if basepath!="":
+        request.session['basepath']=basepath
+    file=os.listdir(path)
+    isdir=[]
+    isfile=[]
+    for f in range(len(file)):
+        if os.path.isdir(path+"\\"+file[f]):
+            isdir.append(file[f])
+        else:
+            isfile.append(file[f])
+    #filepath = os.path.join(path,file[0])
+    filepath=os.path.abspath(path)
+    #print filepath
     t=loader.get_template('fileList.html')
     c=Context({'isfile':isfile,'isdir':isdir,'path':filepath})
     return HttpResponse(t.render(c))

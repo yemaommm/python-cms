@@ -5,6 +5,7 @@
    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+   <script src="/static/js/tinymce/tinymce.min.js"></script>
 </head>
 <body style="width:99%">
 <h1>files</h1>
@@ -16,7 +17,7 @@
                <li class="active"><a href="#">Home</a></li>
                 {% block content %}
                 {% for post in posts %}
-                <li><a onclick="chane(this)" path="{{ post.path }}">{{ post.name }}<br>{{ post.path }}</a></li>
+                <li><a onclick="chane(this)" path="{{ post.path }}" basepath="{{ post.path }}">{{ post.name }}<br>{{ post.path }}</a></li>
                 {% endfor %}
                 {% endblock %}
             </ul>
@@ -28,13 +29,174 @@
        </div>
    </div>
 </div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" id="myModalLabel">
+               模态框（Modal）标题
+            </h4>
+         </div>
+         <div id="myModalBody" class="modal-body">
+            在这里添加一些文本
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default"
+               data-dismiss="modal">关闭
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="mkdir" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" id="mkdirtitle">
+               新建文件夹
+            </h4>
+         </div>
+         <div id="mkdirbody" class="modal-body">
+            文件夹名称：<input id="mkdirtext" type="text" />
+         </div>
+         <div class="modal-footer">
+             <button onclick="mk(1)" type="button" class="btn btn-primary">新建
+            </button>
+            <button type="button" class="btn btn-default"
+               data-dismiss="modal">关闭
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="mkfile" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog" style="width: 80%">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" id="mkfiletitle">
+               新建文件
+            </h4>
+         </div>
+         <div id="mkfilebody" class="modal-body">
+            文件名称：<input id="mkfilename" type="text" /><br><br>
+            内容：<textarea id="mkfiletext" style="width: 80%;height: 400px;"></textarea>
+         </div>
+         <div class="modal-footer">
+             <button onclick="mk(2)" type="button" class="btn btn-primary">新建
+            </button>
+            <button type="button" class="btn btn-default"
+               data-dismiss="modal">关闭
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
 </body>
 <script>
+    function fash() {
+            htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},async:false});
+            $('#chan').html(htmlobj.responseText)
+    }
 function chane(t){
-    //alert($(t).attr('path'))
-    htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$(t).attr('path')},async:false});
+    if($(t).attr('file')=='true'){
+        isfile(t)
+        return
+    }
+    stmp=$(t).attr('basepath')
+    if(stmp==undefined)
+        stmp=""
+    htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$(t).attr('path'),'basepath':stmp},async:false});
     $('#chan').html(htmlobj.responseText)
     //alert(htmlobj.responseText)
 }
+function find(t){
+    path=$(t).attr('path')
+    split=$(t).attr('select')
+    if(split=='home'){
+        htmlobj=$.ajax({url:"/files/find/",data:{'path':path,'select':split},async:false});
+        $('#chan').html(htmlobj.responseText)
+    }else if(split=='fist'){
+        htmlobj=$.ajax({url:"/files/find/",data:{'path':path,'select':split},async:false});
+        $('#chan').html(htmlobj.responseText)
+    }
+}
+    function isfile(t){
+        htmlobj=$.ajax({url:"/files/readfile/",data:{'path':$(t).attr('path')},async:false});
+        $('#myModalLabel').html($(t).attr('path'))
+        $('#myModalBody').html(htmlobj.responseText)
+        //alert(htmlobj.responseText)
+        $('#myModal').modal('show')
+    }
+function mk(y) {
+    if(y==1){
+        if(mkdirtext.value==""){
+            alert("文件夹名称不能为空")
+            return
+        }
+        htmlobj=$.ajax({url:"/files/mkdir/",data:{'nowpath':$('#nowpath').html(),'filename':mkdirtext.value},async:false});
+        if(htmlobj.responseText=='ok'){
+            alert("新建成功")
+            htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},async:false});
+            $('#chan').html(htmlobj.responseText)
+            $('#mkdir').modal('hide')
+        }else{
+            alert(htmlobj.responseText)
+        }
+    }else if(y==2){
+
+    }
+}
+    tinymce.init({
+		selector: "textarea",
+		theme: "modern",
+		plugins: [
+			"advlist autolink autosave link image lists charmap print preview hr anchor pagebreak spellchecker",
+			"searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+			"save table contextmenu directionality emoticons template textcolor paste fullpage textcolor colorpicker"
+		],
+		external_plugins: {
+			//"moxiemanager": "/moxiemanager-php/plugin.js"
+		},
+		content_css: "css/development.css",
+		add_unload_trigger: false,
+		autosave_ask_before_unload: false,
+
+		toolbar1: "save newdocument fullpage | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
+		toolbar2: "cut copy paste pastetext | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media help code | insertdatetime preview | forecolor backcolor",
+		toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | ltr rtl | spellchecker | visualchars visualblocks nonbreaking template pagebreak restoredraft | insertfile insertimage",
+		menubar: false,
+		toolbar_items_size: 'small',
+
+		style_formats: [
+			{title: 'Bold text', inline: 'b'},
+			{title: 'Red text', inline: 'span', styles: {color: '#ff0000'}},
+			{title: 'Red header', block: 'h1', styles: {color: '#ff0000'}},
+			{title: 'Example 1', inline: 'span', classes: 'example1'},
+			{title: 'Example 2', inline: 'span', classes: 'example2'},
+			{title: 'Table styles'},
+			{title: 'Table row 1', selector: 'tr', classes: 'tablerow1'}
+		],
+	});
 </script>
 </html>
