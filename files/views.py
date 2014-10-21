@@ -7,12 +7,40 @@ import json
 import os
 import HTMLParser
 import cgi
+import shutil
 
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 # Create your views here.
+
+def delfile(request):
+    html_parser = HTMLParser.HTMLParser()
+    filename=request.GET['filename']
+    nowpath=request.GET['nowpath']
+    filename=html_parser.unescape(filename)
+    nowpath=html_parser.unescape(nowpath)
+    stmp=nowpath+'\\'+filename
+    if os.path.isdir(stmp):
+        shutil.rmtree(stmp,True)
+    elif os.path.isfile(stmp):
+        os.remove(stmp)
+    return HttpResponse('ok')
+
+def mkfile(request):
+    html_parser = HTMLParser.HTMLParser()
+    mkname=request.GET['mkname']
+    mktext=request.GET['mktext']
+    nowpath=request.GET['nowpath']
+    mkname=html_parser.unescape(mkname)
+    mktext=html_parser.unescape(mktext)
+    nowpath=html_parser.unescape(nowpath)
+    f=open(nowpath+'\\'+mkname,'w')
+    f.write(mktext)
+    f.close()
+    return HttpResponse('ok')
+
 
 def mkdir(request):
     html_parser = HTMLParser.HTMLParser()
@@ -28,7 +56,8 @@ def readfile(request):
     path=request.GET['path']
     path=html_parser.unescape(path)
     str=open(path,'r')
-    str=cgi.escape(str.read())
+    #str=cgi.escape(str.read())
+    str=str.read()
     return HttpResponse(str)
 
 def find(request):
@@ -39,6 +68,8 @@ def find(request):
     select=html_parser.unescape(select)
     if select=='fist':
         path=path[0:path.rfind('\\')]
+        if path.find(request.session['basepath'])==-1:
+            path=request.session['basepath']
     elif select=='home':
         path=request.session['basepath']
     #print path
@@ -54,7 +85,7 @@ def find(request):
     filepath=os.path.abspath(path)
     #print filepath
     t=loader.get_template('fileList.html')
-    c=Context({'isfile':isfile,'isdir':isdir,'path':filepath})
+    c=Context({'isfile':isfile,'isdir':isdir,'path':path})
     return HttpResponse(t.render(c))
 
 def fileList(request):
@@ -77,7 +108,7 @@ def fileList(request):
     filepath=os.path.abspath(path)
     #print filepath
     t=loader.get_template('fileList.html')
-    c=Context({'isfile':isfile,'isdir':isdir,'path':filepath})
+    c=Context({'isfile':isfile,'isdir':isdir,'path':path})
     return HttpResponse(t.render(c))
 
 def one(request):

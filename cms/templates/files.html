@@ -6,30 +6,34 @@
    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
    <script src="/static/js/tinymce/tinymce.min.js"></script>
+    <script src="/static/js/tinymce/plugins/table/plugin.min.js"></script>
+    <script src="/static/js/tinymce/plugins/paste/plugin.min.js"></script>
+    <script src="/static/js/tinymce/plugins/spellchecker/plugin.min.js"></script>
 </head>
 <body style="width:99%">
-<h1>files</h1>
-<p>垂直的胶囊式导航菜单</p>
-<div class="container-fluid">
-   <div class="row" >
-       <div class="col-sm-3 col-md-2">
-            <ul class="nav nav-pills nav-stacked">
-               <li class="active"><a href="#">Home</a></li>
-                {% block content %}
-                {% for post in posts %}
-                <li><a onclick="chane(this)" path="{{ post.path }}" basepath="{{ post.path }}">{{ post.name }}<br>{{ post.path }}</a></li>
-                {% endfor %}
-                {% endblock %}
-            </ul>
+<div id="cont">
+    <h1>files</h1>
+    <p>垂直的胶囊式导航菜单</p>
+    <div class="container-fluid">
+       <div class="row" >
+           <div class="col-sm-3 col-md-2">
+                <ul class="nav nav-pills nav-stacked">
+                   <li class="active"><a href="#">Home</a></li>
+                    {% block content %}
+                    {% for post in posts %}
+                    <li><a onclick="chane(this)" path="{{ post.path }}" basepath="{{ post.path }}">{{ post.name }}<br>{{ post.path }}</a></li>
+                    {% endfor %}
+                    {% endblock %}
+                </ul>
+           </div>
+           <div id="chan" class="col-xs-9 col-sm-10">
+                 <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                    laboris nisi ut aliquip ex ea commodo consequat.
+                 </p>
+           </div>
        </div>
-       <div id="chan" class="col-xs-9 col-sm-10">
-             <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat.
-             </p>
-       </div>
-   </div>
+    </div>
 </div>
-
 <!-- 模态框（Modal） -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
    aria-labelledby="myModalLabel" aria-hidden="true">
@@ -85,7 +89,7 @@
 </div>
 
 <!-- 模态框（Modal） -->
-<div class="modal fade" id="mkfile" tabindex="-1" role="dialog"
+<div style="display: none;" id="mkfile" tabindex="-1" role="dialog"
    aria-labelledby="myModalLabel" aria-hidden="true">
    <div class="modal-dialog" style="width: 80%">
       <div class="modal-content">
@@ -103,17 +107,54 @@
             内容：<textarea id="mkfiletext" style="width: 80%;height: 400px;"></textarea>
          </div>
          <div class="modal-footer">
-             <button onclick="mk(2)" type="button" class="btn btn-primary">新建
+             <button onclick="mk(2)" type="button" class="btn btn-primary">新建/修改
             </button>
-            <button type="button" class="btn btn-default"
-               data-dismiss="modal">关闭
+            <button onclick="closemkfile()" type="button" class="btn btn-default">关闭
             </button>
          </div>
       </div><!-- /.modal-content -->
 </div><!-- /.modal -->
 </div>
+
+<div style="display: none;width: 100px;background: white;border:1px solid #000;
+    position: absolute;top: 100px;left: 200px;" id="mune">
+            <ul class="nav nav-pills nav-stacked" style="width: 100%">
+                <li style="width: 100%"><a style="width: 100%" onclick="del()" >删除</a></li>
+                <li style="width: 100%"><a style="width: 100%" onclick="closemune()" >取消</a></li>
+            </ul>
+</div>
 </body>
 <script>
+    delfilename="";
+    function del(){
+        htmlobj=$.ajax({url:"/files/delfile/",data:{'nowpath':$('#nowpath').html(),'filename':delfilename},async:false});
+        alert(htmlobj.responseText)
+        fash()
+        closemune();
+    }
+    function openmune(v){
+        delfilename=trim($(v).text())
+        //alert(delfilename)
+        var e = event || window.event;
+        var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
+        var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
+        var x = e.pageX || e.clientX + scrollX;
+        var y = e.pageY || e.clientY + scrollY;
+        $('#mune').css('top',y);
+        $('#mune').css('left',x);
+        $('#mune').css('display','block');
+    }
+    function closemune(){
+        $('#mune').css('display','none');
+    }
+    function openmkfile(){
+        $('#mkfile').css('display','block');
+        $('#cont').css('display','none');
+    }
+    function closemkfile(){
+        $('#mkfile').css('display','none');
+        $('#cont').css('display','block');
+    }
     function fash() {
             htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},async:false});
             $('#chan').html(htmlobj.responseText)
@@ -143,10 +184,14 @@ function find(t){
 }
     function isfile(t){
         htmlobj=$.ajax({url:"/files/readfile/",data:{'path':$(t).attr('path')},async:false});
-        $('#myModalLabel').html($(t).attr('path'))
-        $('#myModalBody').html(htmlobj.responseText)
-        //alert(htmlobj.responseText)
-        $('#myModal').modal('show')
+        //$('#myModalLabel').html($(t).attr('path'))
+        //$('#mkfiletext').value=$(t).attr('path')
+        mkfilename.value=trim($(t).text())
+        tinyMCE.get('mkfiletext').setContent(htmlobj.responseText)
+        //$('#myModalBody').html(htmlobj.responseText)
+        //alert(htmlobj.responseText)cont
+        $('#mkfile').css('display','block');
+        $('#cont').css('display','none');
     }
 function mk(y) {
     if(y==1){
@@ -164,11 +209,22 @@ function mk(y) {
             alert(htmlobj.responseText)
         }
     }else if(y==2){
-
+        mkname=mkfilename.value
+        mktext= tinyMCE.get('mkfiletext').getContent()
+        htmlobj=$.ajax({url:"/files/mkfile/",data:{'nowpath':$('#nowpath').html(),'mkname':mkname,'mktext':mktext},async:false});
+        alert(htmlobj.responseText)
+        htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},async:false});
+        $('#chan').html(htmlobj.responseText)
+        $('#mkfile').css('display','none');
+        $('#cont').css('display','block');
     }
 }
+    function trim(str){ //删除左右两端的空格
+　　     return str.replace(/(^\s*)|(\s*$)/g, "");
+　　 }
+
     tinymce.init({
-		selector: "textarea",
+		selector: "textarea#mkfiletext",
 		theme: "modern",
 		plugins: [
 			"advlist autolink autosave link image lists charmap print preview hr anchor pagebreak spellchecker",
@@ -177,26 +233,24 @@ function mk(y) {
 		],
 		external_plugins: {
 			//"moxiemanager": "/moxiemanager-php/plugin.js"
-		},
-		content_css: "css/development.css",
+		},content_css: "css/development.css",
 		add_unload_trigger: false,
 		autosave_ask_before_unload: false,
-
 		toolbar1: "save newdocument fullpage | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
-		toolbar2: "cut copy paste pastetext | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media help code | insertdatetime preview | forecolor backcolor",
-		toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | ltr rtl | spellchecker | visualchars visualblocks nonbreaking template pagebreak restoredraft | insertfile insertimage",
+		toolbar2: "cut copy paste pastetext | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media help | insertdatetime preview | forecolor backcolor",
+		toolbar3: "table | hr removeformat | subscript superscript | charmap emoticons | print fullscreen | ltr rtl | spellchecker | visualchars visualblocks nonbreaking template pagebreak | insertfile insertimage code",
 		menubar: false,
 		toolbar_items_size: 'small',
+            paste_auto_cleanup_on_paste: true,
+            relative_urls: false,
+            invalid_elements: 'script',
+            statusbar: false,
+            menubar : false,
 
-		style_formats: [
-			{title: 'Bold text', inline: 'b'},
-			{title: 'Red text', inline: 'span', styles: {color: '#ff0000'}},
-			{title: 'Red header', block: 'h1', styles: {color: '#ff0000'}},
-			{title: 'Example 1', inline: 'span', classes: 'example1'},
-			{title: 'Example 2', inline: 'span', classes: 'example2'},
-			{title: 'Table styles'},
-			{title: 'Table row 1', selector: 'tr', classes: 'tablerow1'}
-		],
+			language:'zh_CN',
+
 	});
+
+        $('#mkfile').modal('hide')
 </script>
 </html>
