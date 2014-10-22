@@ -130,15 +130,16 @@ def fileList(request):
         return HttpResponse(err)
 
 def one(request):
-    #cursor = connection.cursor()
-    #cursor.execute('select * from auth_user')
-    #names = cursor.fetchall()
+    cursor = connection.cursor()
+    cursor.execute('select username from auth_user')
+    names = cursor.fetchall()
     #names=FilePath.objects.filter(name='idk')
-    names=FilePath.objects.all()
-    re={}
+    #names=FilePath.objects.all()
+    re=()
     for name in names:
-        re[name.name]=name.path
-    re=json.dumps(re)
+        re+=(((name[0],name[0]),))
+        print re
+    #re=json.dumps(re)
     #print json.loads(re)['123']
     return HttpResponse(re)
 
