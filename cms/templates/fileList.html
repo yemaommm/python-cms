@@ -11,10 +11,10 @@
 {% for file in isdir %}
     <div class="col-sm-3 col-md-2">
         <div class="row">
-          <a style="height:200px;text-align:center;margin-left:20px;
+          <a style="height:200px;text-align:center;margin-left:20px;color:black;font-size:16px;
              margin-right:20px;margin-bottom:20px;" oncontextmenu="openmune(this); return false" onclick="chane(this)" path="{{ path }}\{{ file }}" class="thumbnail">
              <img src="/static/w.jpg"
-             alt="{{ file }}">
+             alt="{{ file }}" style="width:100%;height:170px;">
               {{ file }}
           </a>
         </div>
@@ -23,10 +23,10 @@
 {% for file in isfile %}
     <div class="col-sm-3 col-md-2">
         <div class="row">
-          <a style="height:200px;text-align:center;margin-left:20px;
+          <a style="height:200px;text-align:center;margin-left:20px;color:black;font-size:16px;
             margin-right:20px;margin-bottom:20px;" onclick="chane(this)" oncontextmenu="openmune(this); return false" file="true" path="{{ path }}\{{ file }}" class="thumbnail">
              <img src="/static/j.png"
-             alt="{{ file }}">
+             alt="{{ file }}" style="width:100%;height:170px;">
               {{ file }}
           </a>
         </div>

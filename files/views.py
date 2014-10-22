@@ -16,100 +16,118 @@ sys.setdefaultencoding('utf-8')
 # Create your views here.
 
 def delfile(request):
-    html_parser = HTMLParser.HTMLParser()
-    filename=request.GET['filename']
-    nowpath=request.GET['nowpath']
-    filename=html_parser.unescape(filename)
-    nowpath=html_parser.unescape(nowpath)
-    stmp=nowpath+'\\'+filename
-    if os.path.isdir(stmp):
-        shutil.rmtree(stmp,True)
-    elif os.path.isfile(stmp):
-        os.remove(stmp)
-    return HttpResponse('ok')
+    try:
+        html_parser = HTMLParser.HTMLParser()
+        filename=request.POST['filename']
+        nowpath=request.POST['nowpath']
+        filename=html_parser.unescape(filename)
+        nowpath=html_parser.unescape(nowpath)
+        stmp=nowpath+'\\'+filename
+        if os.path.isdir(stmp):
+            shutil.rmtree(stmp,True)
+        elif os.path.isfile(stmp):
+            os.remove(stmp)
+        return HttpResponse('ok')
+    except Exception as err:
+        return HttpResponse(err)
 
 def mkfile(request):
-    html_parser = HTMLParser.HTMLParser()
-    mkname=request.GET['mkname']
-    mktext=request.GET['mktext']
-    nowpath=request.GET['nowpath']
-    mkname=html_parser.unescape(mkname)
-    mktext=html_parser.unescape(mktext)
-    nowpath=html_parser.unescape(nowpath)
-    f=open(nowpath+'\\'+mkname,'w')
-    f.write(mktext)
-    f.close()
-    return HttpResponse('ok')
+    try:
+        html_parser = HTMLParser.HTMLParser()
+        mkname=request.POST['mkname']
+        mktext=request.POST['mktext']
+        nowpath=request.POST['nowpath']
+        mkname=html_parser.unescape(mkname)
+        mktext=html_parser.unescape(mktext)
+        nowpath=html_parser.unescape(nowpath)
+        f=open(nowpath+'\\'+mkname,'w')
+        f.write(mktext)
+        f.close()
+        return HttpResponse('ok')
+    except Exception as err:
+        return HttpResponse(err)
 
 
 def mkdir(request):
-    html_parser = HTMLParser.HTMLParser()
-    path=request.GET['nowpath']
-    filename=request.GET['filename']
-    path=html_parser.unescape(path)
-    filename=html_parser.unescape(filename)
-    os.mkdir(path+"\\"+filename)
-    return HttpResponse('ok')
+    try:
+        html_parser = HTMLParser.HTMLParser()
+        path=request.POST['nowpath']
+        filename=request.POST['filename']
+        path=html_parser.unescape(path)
+        filename=html_parser.unescape(filename)
+        os.mkdir(path+"\\"+filename)
+        return HttpResponse('ok')
+    except Exception as err:
+        return HttpResponse(err)
 
 def readfile(request):
-    html_parser = HTMLParser.HTMLParser()
-    path=request.GET['path']
-    path=html_parser.unescape(path)
-    str=open(path,'r')
-    #str=cgi.escape(str.read())
-    str=str.read()
-    return HttpResponse(str)
+    try:
+        html_parser = HTMLParser.HTMLParser()
+        path=request.POST['path']
+        path=html_parser.unescape(path)
+        str=open(path,'r')
+        #str=cgi.escape(str.read())
+        str=str.read()
+        return HttpResponse(str)
+    except Exception as err:
+        return HttpResponse(err)
 
 def find(request):
-    html_parser = HTMLParser.HTMLParser()
-    path=request.GET['path']
-    select=request.GET['select']
-    path=html_parser.unescape(path)
-    select=html_parser.unescape(select)
-    if select=='fist':
-        path=path[0:path.rfind('\\')]
-        if path.find(request.session['basepath'])==-1:
+    try:
+        html_parser = HTMLParser.HTMLParser()
+        path=request.POST['path']
+        select=request.POST['select']
+        path=html_parser.unescape(path)
+        select=html_parser.unescape(select)
+        if select=='fist':
+            path=path[0:path.rfind('\\')]
+            if path.find(request.session['basepath'])==-1:
+                path=request.session['basepath']
+        elif select=='home':
             path=request.session['basepath']
-    elif select=='home':
-        path=request.session['basepath']
-    #print path
-    file=os.listdir(path)
-    isdir=[]
-    isfile=[]
-    for f in range(len(file)):
-        if os.path.isdir(path+"\\"+file[f]):
-            isdir.append(file[f])
-        else:
-            isfile.append(file[f])
-    #filepath = os.path.join(path,file[0])
-    filepath=os.path.abspath(path)
-    #print filepath
-    t=loader.get_template('fileList.html')
-    c=Context({'isfile':isfile,'isdir':isdir,'path':path})
-    return HttpResponse(t.render(c))
+        #print path
+        file=os.listdir(path)
+        isdir=[]
+        isfile=[]
+        for f in range(len(file)):
+            if os.path.isdir(path+"\\"+file[f]):
+                isdir.append(file[f])
+            else:
+                isfile.append(file[f])
+        #filepath = os.path.join(path,file[0])
+        filepath=os.path.abspath(path)
+        #print filepath
+        t=loader.get_template('fileList.html')
+        c=Context({'isfile':isfile,'isdir':isdir,'path':path})
+        return HttpResponse(t.render(c))
+    except Exception as err:
+        return HttpResponse(err)
 
 def fileList(request):
-    html_parser = HTMLParser.HTMLParser()
-    path=request.GET['path']
-    basepath=request.GET['basepath']
-    path=html_parser.unescape(path)
-    basepath=html_parser.unescape(basepath)
-    if basepath!="":
-        request.session['basepath']=basepath
-    file=os.listdir(path)
-    isdir=[]
-    isfile=[]
-    for f in range(len(file)):
-        if os.path.isdir(path+"\\"+file[f]):
-            isdir.append(file[f])
-        else:
-            isfile.append(file[f])
-    #filepath = os.path.join(path,file[0])
-    filepath=os.path.abspath(path)
-    #print filepath
-    t=loader.get_template('fileList.html')
-    c=Context({'isfile':isfile,'isdir':isdir,'path':path})
-    return HttpResponse(t.render(c))
+    try:
+        html_parser = HTMLParser.HTMLParser()
+        path=request.POST['path']
+        basepath=request.POST['basepath']
+        path=html_parser.unescape(path)
+        basepath=html_parser.unescape(basepath)
+        if basepath!="":
+            request.session['basepath']=basepath
+        file=os.listdir(path)
+        isdir=[]
+        isfile=[]
+        for f in range(len(file)):
+            if os.path.isdir(path+"\\"+file[f]):
+                isdir.append(file[f])
+            else:
+                isfile.append(file[f])
+        #filepath = os.path.join(path,file[0])
+        filepath=os.path.abspath(path)
+        #print filepath
+        t=loader.get_template('fileList.html')
+        c=Context({'isfile':isfile,'isdir':isdir,'path':path})
+        return HttpResponse(t.render(c))
+    except Exception as err:
+        return HttpResponse(err)
 
 def one(request):
     #cursor = connection.cursor()

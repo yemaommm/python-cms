@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-   <title>Bootstrap 实例 - 垂直的胶囊式导航菜单</title>
+   <title>文件管理页面</title>
    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
@@ -12,8 +12,9 @@
 </head>
 <body style="width:99%">
 <div id="cont">
-    <h1>files</h1>
-    <p>垂直的胶囊式导航菜单</p>
+    <div style="height:100px;">
+        <h1>文件管理页面</h1>
+    </div>
     <div class="container-fluid">
        <div class="row" >
            <div class="col-sm-3 col-md-2">
@@ -26,7 +27,7 @@
                     {% endblock %}
                 </ul>
            </div>
-           <div id="chan" class="col-xs-9 col-sm-10">
+           <div id="chan" class="col-xs-9 col-sm-10" onmousedown="closemune()" style="background:#ddddff;overflow:auto;color:black;font-size:18px;">
                  <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco
                     laboris nisi ut aliquip ex ea commodo consequat.
                  </p>
@@ -89,8 +90,7 @@
 </div>
 
 <!-- 模态框（Modal） -->
-<div style="display: none;" id="mkfile" tabindex="-1" role="dialog"
-   aria-labelledby="myModalLabel" aria-hidden="true">
+<div style="display: none;" id="mkfile">
    <div class="modal-dialog" style="width: 80%">
       <div class="modal-content">
          <div class="modal-header">
@@ -123,14 +123,46 @@
                 <li style="width: 100%"><a style="width: 100%" onclick="closemune()" >取消</a></li>
             </ul>
 </div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="alert" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" id="alerttitle">
+               模态框（Modal）标题
+            </h4>
+         </div>
+         <div id="alerttext" class="modal-body">
+            在这里添加一些文本
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default"
+               data-dismiss="modal">关闭
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+
 </body>
 <script>
+if (window.innerHeight)
+       winHeight = window.innerHeight;
+ else if ((document.body) && (document.body.clientHeight))
+       winHeight = document.body.clientHeight;
+$('#chan').css('height',winHeight-120);
     delfilename="";
     function del(){
-        htmlobj=$.ajax({url:"/files/delfile/",data:{'nowpath':$('#nowpath').html(),'filename':delfilename},async:false});
-        alert(htmlobj.responseText)
-        fash()
-        closemune();
+        $.ajax({type:'post',url:"/files/delfile/",data:{'nowpath':$('#nowpath').html(),'filename':delfilename},success:function(result){
+                showalert(result)
+                fash()
+                closemune();
+          }});
     }
     function openmune(v){
         delfilename=trim($(v).text())
@@ -156,10 +188,12 @@
         $('#cont').css('display','block');
     }
     function fash() {
-            htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},async:false});
-            $('#chan').html(htmlobj.responseText)
+            $.ajax({type:'post',url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},success:function(result){
+                $('#chan').html(result)
+          }});
     }
 function chane(t){
+    closemune()
     if($(t).attr('file')=='true'){
         isfile(t)
         return
@@ -167,56 +201,64 @@ function chane(t){
     stmp=$(t).attr('basepath')
     if(stmp==undefined)
         stmp=""
-    htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$(t).attr('path'),'basepath':stmp},async:false});
-    $('#chan').html(htmlobj.responseText)
+    $.ajax({type:'post',type:'post',url:"/files/fileList/",data:{'path':$(t).attr('path'),'basepath':stmp},success:function(result){
+            $('#chan').html(result)
+          }});
     //alert(htmlobj.responseText)
 }
 function find(t){
     path=$(t).attr('path')
     split=$(t).attr('select')
     if(split=='home'){
-        htmlobj=$.ajax({url:"/files/find/",data:{'path':path,'select':split},async:false});
-        $('#chan').html(htmlobj.responseText)
+        $.ajax({type:'post',url:"/files/find/",data:{'path':path,'select':split},success:function(result){
+        $('#chan').html(result)
+          }});
     }else if(split=='fist'){
-        htmlobj=$.ajax({url:"/files/find/",data:{'path':path,'select':split},async:false});
-        $('#chan').html(htmlobj.responseText)
+        $.ajax({type:'post',url:"/files/find/",data:{'path':path,'select':split},success:function(result){
+        $('#chan').html(result)
+          }});
     }
 }
     function isfile(t){
-        htmlobj=$.ajax({url:"/files/readfile/",data:{'path':$(t).attr('path')},async:false});
-        //$('#myModalLabel').html($(t).attr('path'))
-        //$('#mkfiletext').value=$(t).attr('path')
-        mkfilename.value=trim($(t).text())
-        tinyMCE.get('mkfiletext').setContent(htmlobj.responseText)
-        //$('#myModalBody').html(htmlobj.responseText)
-        //alert(htmlobj.responseText)cont
-        $('#mkfile').css('display','block');
-        $('#cont').css('display','none');
+        $.ajax({type:'post',url:"/files/readfile/",data:{'path':$(t).attr('path')},success:function(result){
+            //$('#myModalLabel').html($(t).attr('path'))
+            //$('#mkfiletext').value=$(t).attr('path')
+            mkfilename.value=trim($(t).text())
+            tinyMCE.get('mkfiletext').setContent(result)
+            //$('#myModalBody').html(result)
+            //alert(htmlobj.responseText)cont
+            $('#mkfile').css('display','block');
+            $('#cont').css('display','none');
+          }});
     }
 function mk(y) {
+    if(mkdirtext.value==""){
+        alert("文件夹名称不能为空")
+        return
+    }
     if(y==1){
-        if(mkdirtext.value==""){
-            alert("文件夹名称不能为空")
-            return
-        }
-        htmlobj=$.ajax({url:"/files/mkdir/",data:{'nowpath':$('#nowpath').html(),'filename':mkdirtext.value},async:false});
-        if(htmlobj.responseText=='ok'){
-            alert("新建成功")
-            htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},async:false});
-            $('#chan').html(htmlobj.responseText)
-            $('#mkdir').modal('hide')
-        }else{
-            alert(htmlobj.responseText)
-        }
+       $.ajax({type:'post',url:"/files/mkdir/",data:{'nowpath':$('#nowpath').html(),'filename':mkdirtext.value},success:function(result){
+            if(result=='ok'){
+                showalert("新建成功")
+                $.ajax({type:'post',url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},success:function(results){
+                    $('#chan').html(results)
+                    $('#mkdir').modal('hide')
+                }});
+            }else{
+                showalert(result)
+            }
+
+        }});
     }else if(y==2){
         mkname=mkfilename.value
         mktext= tinyMCE.get('mkfiletext').getContent()
-        htmlobj=$.ajax({url:"/files/mkfile/",data:{'nowpath':$('#nowpath').html(),'mkname':mkname,'mktext':mktext},async:false});
-        alert(htmlobj.responseText)
-        htmlobj=$.ajax({url:"/files/fileList/",data:{'path':$('#nowpath').html(),'basepath':""},async:false});
-        $('#chan').html(htmlobj.responseText)
-        $('#mkfile').css('display','none');
-        $('#cont').css('display','block');
+        $.ajax({type:'post',url:"/files/mkfile/",data:{'nowpath':$('#nowpath').html(),'mkname':mkname,'mktext':mktext},success:function(result){
+            showalert(result)
+            fash()
+            $('#mkfile').css('display','none');
+            $('#cont').css('display','block');
+
+        }});
     }
 }
     function trim(str){ //删除左右两端的空格
@@ -251,6 +293,17 @@ function mk(y) {
 
 	});
 
-        $('#mkfile').modal('hide')
+     function showalert(v){
+        $('#alerttitle').html('提示');
+        $('#alerttext').html(v);
+        $('#alert').modal('show');
+     }
+     window.onresize = function () {
+        if (window.innerHeight)
+               winHeight = window.innerHeight;
+         else if ((document.body) && (document.body.clientHeight))
+               winHeight = document.body.clientHeight;
+        $('#chan').css('height',winHeight-120);
+     }
 </script>
 </html>
