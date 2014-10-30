@@ -1,0 +1,17 @@
+<link type="text/css" rel="stylesheet" href="/static/images/Styles/SyntaxHighlighter.css"></link> 
+<script class="javascript" src="/static/images/Scripts/shCore.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushCSharp.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushPhp.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushJScript.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushJava.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushVb.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushSql.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushXml.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushDelphi.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushPython.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushRuby.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushCss.js"></script> 
+<script class="javascript" src="/static/images/Scripts/shBrushCpp.js"></script> 
+<script class="javascript"> 
+dp.SyntaxHighlighter.HighlightAll('code'); 
+</script> 

@@ -94,17 +94,17 @@
    <div class="modal-dialog" style="width: 80%">
       <div class="modal-content">
          <div class="modal-header">
-            <button type="button" class="close"
-               data-dismiss="modal" aria-hidden="true">
-                  &times;
-            </button>
             <h4 class="modal-title" id="mkfiletitle">
                新建文件
             </h4>
          </div>
          <div id="mkfilebody" class="modal-body">
-            文件名称：<input id="mkfilename" type="text" /><br><br>
-            内容：<textarea id="mkfiletext" style="width: 80%;height: 400px;"></textarea>
+            文件名称：<input id="mkfilename" type="text" /><br><br><br>
+            内容：
+             <button id="stmp" type="button" class="btn btn-primary">插入高亮代码</button>
+             <button id="qiehuan" type="button" class="btn btn-primary">切换编辑框(切换之后将会转换html格式)</button>
+             <button id="old" type="button" class="btn btn-primary">还原原本内容</button>
+             <textarea id="mkfiletext" style="width: 80%;height: 400px;"></textarea>
          </div>
          <div class="modal-footer">
              <button onclick="mk(2)" type="button" class="btn btn-primary">新建/修改
@@ -115,6 +115,26 @@
       </div><!-- /.modal-content -->
 </div><!-- /.modal -->
 </div>
+
+<!-- 模态框（Modal） -->
+<div style="display: none;position: absolute;right: 20px;float: right;width: 80%;top: 30px;" id="code">
+   <div class="modal-dialog" style="width: 80%">
+      <div class="modal-content">
+         <div class="modal-body">
+            语言：<input id="codename" type="text" /><br><br><br>
+            内容：
+             <textarea id="codetext" style="width: 80%;height: 400px;"></textarea>
+         </div>
+         <div class="modal-footer">
+             <button onclick="addcode()" type="button" class="btn btn-primary">插入
+            </button>
+            <button onclick="closecode()" type="button" class="btn btn-default">关闭
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+
 
 <div style="display: none;width: 100px;background: white;border:1px solid #000;
     position: absolute;top: 100px;left: 200px;" id="mune">
@@ -157,6 +177,7 @@ if (window.innerHeight)
        winHeight = document.body.clientHeight;
 $('#chan').css('height',winHeight-120);
     delfilename="";
+    filetextold="";
     function del(){
         $.ajax({type:'post',url:"/files/delfile/",data:{'nowpath':$('#nowpath').html(),'filename':delfilename},success:function(result){
                 showalert(result)
@@ -180,6 +201,12 @@ $('#chan').css('height',winHeight-120);
         $('#mune').css('display','none');
     }
     function openmkfile(){
+        tinyMCE.get('mkfiletext').hide();
+        qiehuan=false;
+        tinyMCE.get('mkfiletext').setContent("");
+        mkfilename.value="";
+        mkfiletext.value="";
+        filetextold="";
         $('#mkfile').css('display','block');
         $('#cont').css('display','none');
     }
@@ -223,7 +250,11 @@ function find(t){
         $.ajax({type:'post',url:"/files/readfile/",data:{'path':$(t).attr('path')},success:function(result){
             //$('#myModalLabel').html($(t).attr('path'))
             //$('#mkfiletext').value=$(t).attr('path')
-            mkfilename.value=trim($(t).text())
+            mkfilename.value=trim($(t).text());
+            tinyMCE.get('mkfiletext').hide();
+            qiehuan=false;
+            mkfiletext.value=result
+            filetextold=result
             tinyMCE.get('mkfiletext').setContent(result)
             //$('#myModalBody').html(result)
             //alert(htmlobj.responseText)cont
@@ -232,11 +263,11 @@ function find(t){
           }});
     }
 function mk(y) {
-    if(mkdirtext.value==""){
-        alert("文件夹名称不能为空")
-        return
-    }
     if(y==1){
+        if(mkdirtext.value==""){
+            alert("文件夹名称不能为空")
+            return
+        }
        $.ajax({type:'post',url:"/files/mkdir/",data:{'nowpath':$('#nowpath').html(),'filename':mkdirtext.value},success:function(result){
             if(result=='ok'){
                 showalert("新建成功")
@@ -250,8 +281,15 @@ function mk(y) {
 
         }});
     }else if(y==2){
+        if(mkfilename.value==""){
+            alert("文件名称不能为空")
+            return
+        }
         mkname=mkfilename.value
-        mktext= tinyMCE.get('mkfiletext').getContent()
+        if(qiehuan)
+            mktext= tinyMCE.get('mkfiletext').getContent()
+        else
+            mktext= mkfiletext.value;
         $.ajax({type:'post',url:"/files/mkfile/",data:{'nowpath':$('#nowpath').html(),'mkname':mkname,'mktext':mktext},success:function(result){
             showalert(result)
             fash()
@@ -268,6 +306,9 @@ function mk(y) {
     tinymce.init({
 		selector: "textarea#mkfiletext",
 		theme: "modern",
+        trim_span_elements:false,
+        verify_css_classes:false,
+        verify_html:false,
 		plugins: [
 			"advlist autolink autosave link image lists charmap print preview hr anchor pagebreak spellchecker",
 			"searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
@@ -305,5 +346,52 @@ function mk(y) {
                winHeight = document.body.clientHeight;
         $('#chan').css('height',winHeight-120);
      }
+    $('#stmp').click(function(){
+        $('#code').css('display','block');
+        codetext.value="";
+    });
+qiehuan=true;
+    $('#qiehuan').click(function() {
+        //alert(tinyMCE.get('mkfiletext').getContent({format : 'text'}))
+        if (qiehuan) {
+            //$('#mkfiletext').show();
+            tinyMCE.get('mkfiletext').hide();
+            qiehuan=false;
+        }else{
+            //$('#mkfiletext').hide();
+            tinyMCE.get('mkfiletext').show();
+            qiehuan=true;
+        }
+    });
+
+    function addcode(){
+        //alert(importstr)
+        if(codename.value=="")
+            start='<textarea name="code" class="java" cols="100">';
+        else
+            start='<textarea name="code" class="'+codename.value+'" cols="100">';
+
+        end='</textarea> ';
+        text='\n/*  start '+codename.value+'  */\n'+codetext.value+'\n/*  end  */\n'
+        //alert(tinyMCE.get('mkfiletext').getContent().indexOf('<link type="text/css" rel="stylesheet" href="/static/images/Styles/SyntaxHighlighter.css"></link> ')==-1)
+        if(tinyMCE.get('mkfiletext').getContent()
+                .indexOf('<link type="text/css" rel="stylesheet" href="/static/images/Styles/SyntaxHighlighter.css"></link> ')==-1) {
+            tx=$.ajax({url:"/static/link.txt",async:false});
+            importstr=tx.responseText;
+            tinyMCE.get('mkfiletext').setContent(tinyMCE.get('mkfiletext').getContent() + importstr);
+        }
+        tinyMCE.get('mkfiletext').execCommand("mceInsertContent", false, start+text+end);
+        closecode();
+    }
+
+    function closecode(){
+        $('#code').css('display','none');
+    }
+    $('#old').click(function(){
+        //alert(filetextold)
+        tinyMCE.get('mkfiletext').hide();
+        qiehuan=false;
+        mkfiletext.value=filetextold;
+    })
 </script>
 </html>
