@@ -12,6 +12,4 @@
 <script class="javascript" src="/static/images/Scripts/shBrushRuby.js"></script> 
 <script class="javascript" src="/static/images/Scripts/shBrushCss.js"></script> 
 <script class="javascript" src="/static/images/Scripts/shBrushCpp.js"></script> 
-<script class="javascript"> 
-dp.SyntaxHighlighter.HighlightAll('code'); 
-</script> 
+<script class="javascript">dp.SyntaxHighlighter.HighlightAll('code');</script> 

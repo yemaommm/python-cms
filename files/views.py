@@ -2,6 +2,7 @@
 from django.shortcuts import render,HttpResponse
 from django.db import connection,transaction
 from django.template import loader,Context
+from django import forms
 from files.models import *
 import json
 import os
@@ -22,6 +23,7 @@ def delfile(request):
         nowpath=request.POST['nowpath']
         filename=html_parser.unescape(filename)
         nowpath=html_parser.unescape(nowpath)
+        request.session['nowpath']=nowpath
         stmp=nowpath+'\\'+filename
         if os.path.isdir(stmp):
             shutil.rmtree(stmp,True)
@@ -40,6 +42,7 @@ def mkfile(request):
         mkname=html_parser.unescape(mkname)
         mktext=html_parser.unescape(mktext)
         nowpath=html_parser.unescape(nowpath)
+        request.session['nowpath']=nowpath
         f=open(nowpath+'\\'+mkname,'w')
         f.write(mktext)
         f.close()
@@ -54,6 +57,7 @@ def mkdir(request):
         path=request.POST['nowpath']
         filename=request.POST['filename']
         path=html_parser.unescape(path)
+        request.session['nowpath']=path
         filename=html_parser.unescape(filename)
         os.mkdir(path+"\\"+filename)
         return HttpResponse('ok')
@@ -87,6 +91,7 @@ def find(request):
             path=request.session['basepath']
         #print path
         file=os.listdir(path)
+        request.session['nowpath']=path
         isdir=[]
         isfile=[]
         for f in range(len(file)):
@@ -113,6 +118,7 @@ def fileList(request):
         if basepath!="":
             request.session['basepath']=basepath
         file=os.listdir(path)
+        request.session['nowpath']=path
         isdir=[]
         isfile=[]
         for f in range(len(file)):
@@ -149,4 +155,18 @@ def index(request):
     t=loader.get_template('files.html')
     c=Context({'posts':posts})
     return HttpResponse(t.render(c))
-    
+
+
+def upload(request):
+
+   # A nested FieldStorage instance holds the file
+   #print request.POST.get('nowpath')
+   fileitem = request.FILES.getlist('file')
+   for f in fileitem:
+       #print f.read()
+       wf=open(request.session['nowpath']+'\\'+f.name,'wb')
+       wf.write(f.read())
+       wf.close();
+   #print request.FILES.getlist('file')
+
+   return HttpResponse("error")

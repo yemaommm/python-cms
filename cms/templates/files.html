@@ -9,6 +9,7 @@
     <script src="/static/js/tinymce/plugins/table/plugin.min.js"></script>
     <script src="/static/js/tinymce/plugins/paste/plugin.min.js"></script>
     <script src="/static/js/tinymce/plugins/spellchecker/plugin.min.js"></script>
+    <script type="text/javascript" src="/static/js/ajaxfileupload.js"></script>
 </head>
 <body style="width:99%">
 <div id="cont">
@@ -159,6 +160,33 @@
          </div>
          <div id="alerttext" class="modal-body">
             在这里添加一些文本
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default"
+               data-dismiss="modal">关闭
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="upload" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" >
+               Upload
+            </h4>
+         </div>
+         <div class="modal-body">
+                <p>File: <input id="uploadfile" type="file" multiple name="file"></p>
+                <p><input id="uploadbutton" type="button" value="Upload"></p>
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-default"
@@ -350,6 +378,25 @@ function mk(y) {
         $('#code').css('display','block');
         codetext.value="";
     });
+
+    $('#uploadbutton').click(function(){
+        $.ajaxFileUpload({
+            url:'upload',            //需要链接到服务器地址
+            secureuri:false,
+            fileElementId:'uploadfile',                        //文件选择框的id属性
+            //dataType: 'xml',                                     //服务器返回的格式，可以是json
+            success: function (data, status)            //相当于java中try语句块的用法
+            {
+                alert('上传成功');
+                //fash();
+            },
+            error: function (data, status, e)            //相当于java中catch语句块的用法
+            {
+                alert('上传失败，'+data);
+            }
+            });
+    });
+
 qiehuan=true;
     $('#qiehuan').click(function() {
         //alert(tinyMCE.get('mkfiletext').getContent({format : 'text'}))
