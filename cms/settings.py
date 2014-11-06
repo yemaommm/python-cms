@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
     'files',
+    'cmsSQL',
     'cms',
     'feincms',
     'feincms.module.page',

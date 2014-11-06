@@ -1,0 +1,25 @@
+<table id="tt" ></table>
+<script>
+{% block content %}
+rows={{ rows|safe }}
+col={{ col|safe }}
+{% endblock %}
+$('#tt').bootstrapTable({
+    data:rows,
+    onClickRow:function(row){
+        alert(JSON.stringify(row))
+    },
+    cache: false,
+    height: 800,
+    striped: true,
+    pagination: true,
+    pageSize: 50,
+    pageList: [10, 25, 50, 100, 200],
+    search: true,
+    showColumns: true,
+    showRefresh: true,
+    minimumCountColumns: 2,
+    clickToSelect: true,
+    columns: col,
+});
+</script>

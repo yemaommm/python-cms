@@ -10,6 +10,7 @@ urlpatterns = patterns('',
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^files/',include('files.urls')),
+    url(r'^cmsSQL/',include('cmsSQL.urls')),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:

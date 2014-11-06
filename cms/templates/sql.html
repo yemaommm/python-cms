@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>MySQL管理页面</title>
+   <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+   <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+</head>
+<body style="width:99%">
+    <div id="cont">
+        <div style="height:100px;">
+            <h1>MySQL管理页面</h1>
+        </div>
+        <div class="container-fluid">
+           <div class="row" >
+               <div class="col-sm-2 col-md-1" style="height:800px;overflow:auto;">
+                    <ul class="nav nav-pills nav-stacked">
+                       <li class="active"><a id="sqlselect" href="#">Home</a></li>
+                        {% block content %}
+                        {% for post in posts %}
+                        <li><a onclick="chane(this)" >{{ post.name }}</a></li>
+                        {% endfor %}
+                        {% endblock %}
+                    </ul>
+               </div>
+               <div id="chan" class="col-xs-9 col-sm-10" >
+                     <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                        laboris nisi ut aliquip ex ea commodo consequat.
+                     </p>
+               </div>
+           </div>
+        </div>
+    </div>
+</body>
+<script>
+    function chane(v){
+        $('#sqlselect').html($(v).text())
+        $.ajax({type:'post',type:'post',url:"/cmsSQL/postConn",data:{'name':$(v).text()},success:function(result){
+            $('#chan').html(result)
+        }});
+    }
+    function chanedb(v){
+        $('#dbselect').html($(v).text())
+        $.ajax({type:'post',type:'post',url:"/cmsSQL/postdb",data:{'name':$(v).text()},success:function(result){
+            $('#chandb').html(result)
+        }});
+    }
+    function chanetable(v){
+        $('#tableselect').html($(v).text())
+        $('#chantable').html('数据读取中，请稍后………')
+        $.ajax({type:'post',type:'post',url:"/cmsSQL/posttable",data:{'name':$(v).text()},success:function(result){
+            $('#chantable').html(result)
+        }});
+    }
+
+</script>
+</html>
