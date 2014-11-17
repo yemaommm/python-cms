@@ -1,13 +1,68 @@
-<table id="tt" ></table>
-<script>
+
 {% block content %}
+<table id="tt" ></table>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="dlog" tabindex="-1" role="dialog"
+   aria-labelledby="myModalLabel" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close"
+               data-dismiss="modal" aria-hidden="true">
+                  &times;
+            </button>
+            <h4 class="modal-title" >
+               修改
+            </h4>
+         </div>
+         <div class="modal-body">
+                {% for p in sqlabout %}
+                    {{ p.0 }}:
+                    {% if 'NO' in p.1 %}
+                        （不能为空）
+                    {% endif %}
+                    {% if 'int' in p.2 %}
+                        <br><input type="number" id="{{ p.0 }}" name="{{ p.0 }}" {% if 'PRI' in p.3 %}readonly="true"{% endif %} />
+                    {% elif 'time' in p.2 %}
+                        <br><input type="date" id="{{ p.0 }}" name="{{ p.0 }}"{% if 'PRI' in p.3 %}readonly="true"{% endif %}  />
+                    {% elif 'char' in p.2 %}
+                        <br><input type="text" maxlength="255" style="width: 50%;" id="{{ p.0 }}" name="{{ p.0 }}"{% if 'PRI' in p.3 %}readonly="true"{% endif %}  />
+                    {% elif 'text' in p.2 %}
+                        <br><textarea style="height: 50px;width: 80%;" id="{{ p.0 }}" name="{{ p.0 }}"{% if 'PRI' in p.3 %}readonly="true"{% endif %}  />
+                    {% elif 'enum' in p.2 %}
+                        <br><input type="text" maxlength="55" style="width: 50%;" id="{{ p.0 }}" name="{{ p.0 }}"{% if 'PRI' in p.3 %}readonly="true"{% endif %}  />
+                    {% else %}
+                        <br><input type="text" maxlength="55" style="width: 50%;" id="{{ p.0 }}" name="{{ p.0 }}"{% if 'PRI' in p.3 %}readonly="true"{% endif %}  />
+                    {% endif %}
+                    {{ p.1 }},{{ p.2 }},{{ p.3 }}<br><br>
+                {% endfor %}
+         </div>
+         <div class="modal-footer">
+             <button class="btn btn-primary" >更新</button>
+            <button type="button" class="btn btn-default"
+               data-dismiss="modal">关闭
+            </button>
+         </div>
+      </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+</div>
+<script>
 rows={{ rows|safe }}
 col={{ col|safe }}
-{% endblock %}
 $('#tt').bootstrapTable({
     data:rows,
     onClickRow:function(row){
-        alert(JSON.stringify(row))
+        //alert(JSON.stringify(row))
+        $('#dlog').modal('show')
+        {% for p in sqlabout %}
+            if(row["{{ p.0 }}"]==undefined)
+                $("#{{ p.0 }}").val(row["*{{ p.0 }}"])
+            else
+                $("#{{ p.0 }}").val(row["{{ p.0 }}"])
+            {% if 'time' in p.2 %}
+                $("#{{ p.0 }}").val(row["{{ p.0 }}"].substr(0,10))
+            {% endif %}
+        {% endfor %}
     },
     cache: false,
     height: 800,
@@ -23,3 +78,4 @@ $('#tt').bootstrapTable({
     columns: col,
 });
 </script>
+{% endblock %}

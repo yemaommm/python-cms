@@ -70,7 +70,9 @@ def posttable(request):
     #print R
     col=[]
     rows=[]
+    sqlabout=[]
     for j in range(len(R)):
+        sqlabout.append([ R[j][0] , R[j][2] , R[j][1] , R[j][3] ])
         if R[j][3]=='PRI':
             col.append({'field':'*'+R[j][0],'title':'*'+R[j][0]})
         else:
@@ -78,11 +80,14 @@ def posttable(request):
     for i in range(len(dataQ)):
         stmp={}
         for j in range(len(col)):
-            stmp[col[j]['field']]=str(dataQ[i][j])
+            if dataQ[i][j]==None:
+                stmp[col[j]['field']]=""
+            else:
+                stmp[col[j]['field']]=str(dataQ[i][j])
         rows.append(stmp)
 
     t=loader.get_template('tables.html')
-    c=Context({'col':json.dumps(col),'rows':json.dumps(rows)})
-    print len(t.render(c))
+    c=Context({'col':json.dumps(col),'rows':json.dumps(rows),'sqlabout':sqlabout})
+    #print len(t.render(c))
     return HttpResponse(t.render(c))
     #return HttpResponse('123')
