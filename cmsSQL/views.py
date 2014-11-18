@@ -58,11 +58,13 @@ def posttable(request):
     passwd=request.session['sqlpasswd']
     port=request.session['port']
     sqldb=request.session['sqldb']
+    request.session['sqltable']=sqltable
     #to=[]
     sql=[]
     sql.append("use "+sqldb)
     sql.append("select * from "+sqltable)
     dataQ=mysqlconn.conn(host,user,passwd,port,sql)
+    sql=[]
     sql.append("use "+sqldb)
     sql.append("show columns from "+sqltable)
     R=mysqlconn.conn(host,user,passwd,port,sql)
@@ -91,3 +93,40 @@ def posttable(request):
     #print len(t.render(c))
     return HttpResponse(t.render(c))
     #return HttpResponse('123')
+def sqlupdate(request):
+    jsons= request.POST.get('json')
+    host=request.session['sqlhost']
+    user=request.session['sqluser']
+    passwd=request.session['sqlpasswd']
+    port=request.session['port']
+    sqldb=request.session['sqldb']
+    sqltable=request.session['sqltable']
+    jsons= json.loads(jsons)
+
+    sql=[]
+    sql.append("use "+sqldb)
+    sql.append("show columns from "+sqltable)
+    R=mysqlconn.conn(host,user,passwd,port,sql)
+    where="where "
+    set=""
+    for j in range(len(R)):
+        if R[j][3]=="PRI":
+            if where=="where ":
+                where+=R[j][0]+"='"+jsons[R[j][0]]+"' "
+            else:
+                where+="and "+R[j][0]+"='"+jsons[R[j][0]]+"' "
+        else:
+            if set!="":
+                set+=","
+            set+=R[j][0]+"='"+jsons[R[j][0]]+"' "
+    #print where
+    #print set
+    sql=[]
+    sql.append("use "+sqldb)
+    sql.append("UPDATE "+sqltable+" SET "+set+" "+where)
+    #print sql
+    dataQ=mysqlconn.conn(host,user,passwd,port,sql)
+
+    #print dataQ
+
+    return HttpResponse("OK")

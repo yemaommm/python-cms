@@ -9,6 +9,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
+    url(r'^sqlupdate',sqlupdate),
     url(r'^posttable',posttable),
     url(r'^postdb',postdb),
     url(r'^postConn',postConn),

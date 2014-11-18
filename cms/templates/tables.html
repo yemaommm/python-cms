@@ -38,7 +38,7 @@
                 {% endfor %}
          </div>
          <div class="modal-footer">
-             <button class="btn btn-primary" >更新</button>
+             <button onclick="sqlupdate()" class="btn btn-primary" >更新</button>
             <button type="button" class="btn btn-default"
                data-dismiss="modal">关闭
             </button>
@@ -77,5 +77,19 @@ $('#tt').bootstrapTable({
     clickToSelect: true,
     columns: col,
 });
+function sqlupdate(){
+    stmp={}
+    {% for p in sqlabout %}
+        stmp["{{ p.0 }}"]=$("#{{ p.0 }}").val()
+    {% endfor %}
+    //alert(JSON.stringify(stmp))
+    $.ajax({type:'post',type:'post',url:"/cmsSQL/sqlupdate",datatype:"text",data:{'json':JSON.stringify(stmp)},success:function(result){
+        $('#dlog').modal('hide')
+        alert("修改成功")
+        chanetable(tableselect)
+    },error:function(XMLHttpRequest, textStatus, errorThrown){
+        alert(errorThrown)
+    }});
+}
 </script>
 {% endblock %}
